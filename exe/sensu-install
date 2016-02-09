@@ -71,6 +71,19 @@ module Sensu
         end
       end
 
+      def install_plugin_gems_batch(gems, options={})
+        log "installing Sensu plugin gems"
+        gem_command = "gem install"
+        gem_command << " --no-ri --no-rdoc"
+        gem_command << " --verbose" if options[:verbose]
+        gem_command << " --source #{options[:source]}" if options[:source]
+        gem_command << " #{gems.join(' ')}"
+        log gem_command if options[:verbose]
+        unless system(gem_command)
+          exit 2
+        end
+      end
+
       def install_plugins(plugins, options={})
         log "installing Sensu plugins ..."
         log "provided Sensu plugins: #{plugins}" if options[:verbose]
@@ -86,9 +99,10 @@ module Sensu
           plugin_gem_installed?(raw_gem, options)
         end
         log "Sensu plugin gems to be installed: #{plugin_gems}"
-        plugin_gems.each do |raw_gem|
-          install_plugin_gem(raw_gem, options)
-        end
+        #plugin_gems.each do |raw_gem|
+        #  install_plugin_gem(raw_gem, options)
+        #end
+        install_plugin_gems_batch(plugin_gems, options)
         log "successfully installed Sensu plugins: #{plugins}"
       end
 
